@@ -59,17 +59,23 @@ void UTP_WeaponComponent::Fire()
 				{
 					UGameplayStatics::PlaySoundAtLocation(this, FireSound, Character->GetActorLocation());
 				}
-			}
-		}
-	}
 
-	// Play the fire animation regardless of whether we fired a projectile
-	if (FireAnimation != nullptr)
-	{
-		UAnimInstance* AnimInstance = Character->GetMesh1P()->GetAnimInstance();
-		if (AnimInstance != nullptr)
-		{
-			AnimInstance->Montage_Play(FireAnimation, 1.f);
+				if (FireAnimation != nullptr)
+				{
+					UAnimInstance* AnimInstance = Character->GetMesh1P()->GetAnimInstance();
+					if (AnimInstance != nullptr)
+					{
+						AnimInstance->Montage_Play(FireAnimation, 1.f);
+					}
+				}
+			}
+			else
+			{
+				if (FailedFireSound != nullptr)
+				{
+					UGameplayStatics::PlaySoundAtLocation(this, FailedFireSound, Character->GetActorLocation());
+				}
+			}
 		}
 	}
 }

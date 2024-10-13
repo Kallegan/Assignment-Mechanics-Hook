@@ -20,7 +20,13 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Loot")
 	void RemoveLootedOrb(int Count);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Loot")
+	void AddLootedOrb(int Count);
+
 };
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnOrbCountChanged, int, NewCount);
 
 UCLASS()
 class MECHANICS_API AMechanicsPlayerState : public APlayerState, public IPlayerStateInterface
@@ -30,6 +36,7 @@ class MECHANICS_API AMechanicsPlayerState : public APlayerState, public IPlayerS
 public:
 	AMechanicsPlayerState()
 		: LootedOrbs(0)
+		, LootedOrbsMax(3)
 	{
 	}
 
@@ -38,14 +45,16 @@ public:
 		return LootedOrbs;
 	}
 
-	virtual void RemoveLootedOrb_Implementation(int Count) override
-	{
-		if (LootedOrbs >= Count)
-		{
-			LootedOrbs -= Count;
-		}
-	}
+	virtual void AddLootedOrb_Implementation(int Count) override;
+	virtual void RemoveLootedOrb_Implementation(int Count) override;
+	
+
+	UPROPERTY(BlueprintAssignable, Category = "Loot")
+	FOnOrbCountChanged OnOrbCountChanged;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Loot")
 	int LootedOrbs;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Loot")
+	int LootedOrbsMax;
 };
