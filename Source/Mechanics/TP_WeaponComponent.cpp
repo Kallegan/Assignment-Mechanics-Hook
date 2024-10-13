@@ -3,6 +3,7 @@
 
 #include "TP_WeaponComponent.h"
 #include "MechanicsCharacter.h"
+#include "MechanicsPlayerState.h"
 #include "MechanicsProjectile.h"
 #include "GameFramework/PlayerController.h"
 #include "Camera/PlayerCameraManager.h"
@@ -17,7 +18,6 @@ UTP_WeaponComponent::UTP_WeaponComponent()
 	MuzzleOffset = FVector(100.0f, 0.0f, 10.0f);
 }
 
-
 void UTP_WeaponComponent::Fire()
 {
 	if (Character == nullptr || Character->GetController() == nullptr)
@@ -25,36 +25,47 @@ void UTP_WeaponComponent::Fire()
 		return;
 	}
 
-	// Try and fire a projectile
-	if (ProjectileClass != nullptr)
+	// Get the PlayerController and PlayerState
+	APlayerController* PlayerController = Cast<APlayerController>(Character->GetController());
+	if (PlayerController != nullptr && PlayerController->PlayerState != nullptr)
 	{
-		UWorld* const World = GetWorld();
-		if (World != nullptr)
+		// Check if the PlayerState implements the IPlayerStateInterface
+		if (PlayerController->PlayerState->GetClass()->ImplementsInterface(UPlayerStateInterface::StaticClass()))
 		{
-			APlayerController* PlayerController = Cast<APlayerController>(Character->GetController());
-			const FRotator SpawnRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
-			// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
-			const FVector SpawnLocation = GetOwner()->GetActorLocation() + SpawnRotation.RotateVector(MuzzleOffset);
-	
-			//Set Spawn Collision Handling Override
-			FActorSpawnParameters ActorSpawnParams;
-			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-	
-			// Spawn the projectile at the muzzle
-			World->SpawnActor<AMechanicsProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+			// Call GetLootedOrbs through the interface
+			int LootedOrbs = IPlayerStateInterface::Execute_GetLootedOrbs(PlayerController->PlayerState);
+
+			if (LootedOrbs > 0)
+			{
+				// Try and fire a projectile
+				if (ProjectileClass != nullptr)
+				{
+					UWorld* const World = GetWorld();
+					if (World != nullptr)
+					{
+						const FRotator SpawnRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
+						const FVector SpawnLocation = GetOwner()->GetActorLocation() + SpawnRotation.RotateVector(MuzzleOffset);
+
+						FActorSpawnParameters ActorSpawnParams;
+						ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+
+						World->SpawnActor<AMechanicsProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+						IPlayerStateInterface::Execute_RemoveLootedOrb(PlayerController->PlayerState, 1);
+					}
+				}
+
+				// Play the sound if specified
+				if (FireSound != nullptr)
+				{
+					UGameplayStatics::PlaySoundAtLocation(this, FireSound, Character->GetActorLocation());
+				}
+			}
 		}
 	}
-	
-	// Try and play the sound if specified
-	if (FireSound != nullptr)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, FireSound, Character->GetActorLocation());
-	}
-	
-	// Try and play a firing animation if specified
+
+	// Play the fire animation regardless of whether we fired a projectile
 	if (FireAnimation != nullptr)
 	{
-		// Get the animation object for the arms mesh
 		UAnimInstance* AnimInstance = Character->GetMesh1P()->GetAnimInstance();
 		if (AnimInstance != nullptr)
 		{
@@ -62,6 +73,7 @@ void UTP_WeaponComponent::Fire()
 		}
 	}
 }
+
 
 void UTP_WeaponComponent::AttachWeapon(AMechanicsCharacter* TargetCharacter)
 {
