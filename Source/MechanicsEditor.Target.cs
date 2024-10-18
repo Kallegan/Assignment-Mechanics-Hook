@@ -10,6 +10,6 @@ public class MechanicsEditorTarget : TargetRules
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V4;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_3;
-		ExtraModuleNames.Add("Mechanics");
+		ExtraModuleNames.AddRange(new string[] { "Mechanics", "MechanicsEditor" });
 	}
 }
