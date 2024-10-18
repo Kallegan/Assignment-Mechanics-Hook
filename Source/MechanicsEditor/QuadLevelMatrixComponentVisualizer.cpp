@@ -23,7 +23,7 @@ void FQuadLevelMatrixComponentVisualizer::DrawVisualization(const UActorComponen
 	{
 		for (TObjectIterator<UQuadLevelMatrixComponent> MatrixComponentIterator; MatrixComponentIterator; ++MatrixComponentIterator)
 		{
-			if(*MatrixComponentIterator == LevelMatrixComponent && LevelMatrixComponent->GetWorld() != OwnerActor->GetWorld())
+			if (*MatrixComponentIterator == LevelMatrixComponent || LevelMatrixComponent->GetWorld() != OwnerActor->GetWorld())
 			{
 				continue;
 			}
