@@ -44,6 +44,12 @@ void FQuadLevelMatrixComponentVisualizer::DrawVisualization(const UActorComponen
 	{
 		if(LinkedActor)
 		{
+
+			if(LinkedActor->GetClass() != OwnerActor->GetClass())
+			{
+				continue;
+			}
+			
 			const float DistanceToActor = LinkedActor->GetDistanceTo(OwnerActor);
 			const FVector LinkedActorLocation = LinkedActor->GetActorLocation();
 

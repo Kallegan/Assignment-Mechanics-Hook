@@ -65,6 +65,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	bool GetHasRifle();
 
+	UPROPERTY(EditDefaultsOnly)
+	float YawSensitivity = 0.5f;
+	UPROPERTY(EditDefaultsOnly)
+	float PitchSensitivity = 0.5f;
+
 protected:
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
