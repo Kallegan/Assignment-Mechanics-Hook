@@ -91,6 +91,7 @@ void AMechanicsCharacter::Move(const FInputActionValue& Value)
 		// add movement 
 		AddMovementInput(GetActorForwardVector(), MovementVector.Y);
 		AddMovementInput(GetActorRightVector(), MovementVector.X);
+		K2_PlayFootstepsSFX();
 	}
 }
 
