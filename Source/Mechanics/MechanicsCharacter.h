@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "Interfaces/TestBlueprintableInterface.h"
 #include "MechanicsCharacter.generated.h"
 
 class UInputComponent;
@@ -17,7 +18,7 @@ struct FInputActionValue;
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config=Game)
-class AMechanicsCharacter : public ACharacter
+class AMechanicsCharacter : public ACharacter, public ITestBlueprintableInterface
 {
 	GENERATED_BODY()
 
@@ -90,6 +91,9 @@ public:
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 	/** Returns FirstPersonCameraComponent subobject **/
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
+
+	UFUNCTION(BlueprintPure)
+	virtual float GetActorSpeed_Implementation() const override { return GetVelocity().Length(); } 
 
 };
 
