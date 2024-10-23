@@ -26,6 +26,7 @@ public:
 	/** called when projectile hits something */
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+	virtual void Tick(float DeltaTime) override;
 
 	/** Sphere collision component */
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = Projectile)
@@ -35,5 +36,9 @@ public:
 	USphereComponent* GetCollisionComp() const { return CollisionComp; }
 	/** Returns ProjectileMovement subobject **/
 	UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
+
+
+	UPROPERTY(BlueprintReadWrite)
+	bool bReturningProjectile = false;
 };
 
