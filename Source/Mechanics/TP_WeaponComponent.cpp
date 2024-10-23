@@ -44,7 +44,7 @@ void UTP_WeaponComponent::Fire()
 					if (World != nullptr)
 					{
 						const FRotator SpawnRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
-						const FVector SpawnLocation = GetOwner()->GetActorLocation() + SpawnRotation.RotateVector(MuzzleOffset);
+						const FVector SpawnLocation = PlayerController->PlayerCameraManager->GetCameraLocation() + SpawnRotation.RotateVector(MuzzleOffset);
 
 						FActorSpawnParameters ActorSpawnParams;
 						ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
