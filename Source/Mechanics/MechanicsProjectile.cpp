@@ -50,8 +50,6 @@ void AMechanicsProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	UE_LOG(LogTemp, Warning, TEXT("Tick is running!")); // Debugging log
-
 	if(bReturningProjectile)
 	{
 		// Find the player (assumes single-player or first player in a multiplayer game)
