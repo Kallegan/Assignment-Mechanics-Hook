@@ -34,7 +34,7 @@ void UTP_WeaponComponent::BeginPlay()
 
 				const FRotator SpawnRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
 				const FVector SpawnLocation = GetSocketLocation("Muzzle");
-				TraceWithBounce(SpawnLocation, SpawnRotation);
+				TraceWithBounce(GetSocketLocation("Muzzle"), SpawnRotation);
 				
 			}
 			
@@ -69,7 +69,7 @@ void UTP_WeaponComponent::Fire()
 					if (World != nullptr)
 					{
 						const FRotator SpawnRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
-						const FVector SpawnLocation = PlayerController->PlayerCameraManager->GetCameraLocation() + SpawnRotation.RotateVector(MuzzleOffset);
+						const FVector SpawnLocation = GetSocketLocation("Muzzle");
 
 						FActorSpawnParameters ActorSpawnParams;
 						ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
