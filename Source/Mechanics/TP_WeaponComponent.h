@@ -80,6 +80,8 @@ private:
 	FTimerHandle TraceTimerHandle;
 	virtual void BeginPlay() override;
 
+	float AimTime = 0.f;
+
 
 public:
 	void TraceWithBounce(const FVector& SpawnLocation, const FRotator& SpawnRotation);

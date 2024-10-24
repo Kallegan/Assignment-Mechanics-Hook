@@ -25,8 +25,6 @@ void UTP_WeaponComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
-
 }
 
 
@@ -64,7 +62,7 @@ void UTP_WeaponComponent::Fire()
 						ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
 						World->SpawnActor<AMechanicsProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
-						IPlayerStateInterface::Execute_RemoveLootedOrb(PlayerController->PlayerState, 1);
+						IPlayerStateInterface::Execute_RemoveLootedOrb(PlayerController->PlayerState, 1);						
 					}
 				}
 
@@ -123,37 +121,56 @@ void UTP_WeaponComponent::AttachWeapon(AMechanicsCharacter* TargetCharacter)
 
 		if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerController->InputComponent))
 		{
-			// Fire
+			EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Triggered, this, &UTP_WeaponComponent::Aim);
 			EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &UTP_WeaponComponent::Fire);
-			EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Started, this, &UTP_WeaponComponent::Aim);
 		}
 	}
 }
 
 void UTP_WeaponComponent::Aim()
 {
-	if (!GetWorld()->GetTimerManager().TimerExists(TraceTimerHandle))
-	{		
-		GetWorld()->GetTimerManager().SetTimer(TraceTimerHandle, [this]()
-		{
-			APlayerController* PlayerController = Cast<APlayerController>(Character->GetController());
-			if (PlayerController)
-			{
-				const FRotator SpawnRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
-				const FVector SpawnLocation = GetSocketLocation("Muzzle");
-				TraceWithBounce(GetSocketLocation("Muzzle"), SpawnRotation);
-			}
+	// if (!GetWorld()->GetTimerManager().TimerExists(TraceTimerHandle))
+	// {		
+	// 	GetWorld()->GetTimerManager().SetTimer(TraceTimerHandle, [this]()
+	// 	{
+	// 		APlayerController* PlayerController = Cast<APlayerController>(Character->GetController());
+	// 		if (PlayerController)
+	// 		{
+	// 			const FRotator SpawnRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
+	// 			const FVector SpawnLocation = GetSocketLocation("Muzzle");
+	// 			TraceWithBounce(GetSocketLocation("Muzzle"), SpawnRotation);
+	// 		}
+	//
+	// 	}, 0.01, true);
+	// }
+	// else
+	// {
+	// 	UE_LOG(LogTemp, Warning, TEXT("TIMER EXIST?"))
+	// }
 
-		}, 0.01, true);
+	AimTime += GetWorld()->GetDeltaSeconds();
+	if (AimTime > 0.2f)
+	{
+		if (const APlayerController* PlayerController = Cast<APlayerController>(Character->GetController()))
+		{
+			const FRotator SpawnRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
+			const FVector SpawnLocation = GetSocketLocation("Muzzle");
+			TraceWithBounce(GetSocketLocation("Muzzle"), SpawnRotation);
+		}
 	}
+	
 }
 
 void UTP_WeaponComponent::StopAim()
 {
-	if(GetWorld()->GetTimerManager().TimerExists(TraceTimerHandle))
-	{
-		GetWorld()->GetTimerManager().ClearTimer(TraceTimerHandle);
-	}
+	// if(GetWorld()->GetTimerManager().TimerExists(TraceTimerHandle))
+	// {
+	// 	GetWorld()->GetTimerManager().ClearTimer(TraceTimerHandle);
+	// }
+
+	AimTime = 0.f;
+
+	OnWeaponBeamHit.Broadcast(FVector::ZeroVector, FVector::ZeroVector, -1);
 }
 
 void UTP_WeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -171,7 +188,7 @@ void UTP_WeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		}
 	}
 
-	if (GetWorld()->GetTimerManager().TimerExists(TraceTimerHandle))
+	if (TraceTimerHandle.IsValid())
 	{
 		GetWorld()->GetTimerManager().ClearTimer(TraceTimerHandle);
 	}
