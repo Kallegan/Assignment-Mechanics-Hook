@@ -174,23 +174,32 @@ void UTP_WeaponComponent::PerformBounceTrace(const FVector& StartLocation, const
 	FVector ForwardVector = StartRotation.Vector(); 
 	FVector EndPoint = StartPoint + (ForwardVector * RemainingRange); 
 
-	// Step 2: Setup trace parameters
 	FCollisionQueryParams TraceParams;
 	TraceParams.bTraceComplex = true;
 
 	TraceParams.AddIgnoredActor(Character); 
-
-	// Step 3: Perform the trace
 	FHitResult HitResult;
-	bool bHit = GetWorld()->LineTraceSingleByChannel(
+
+	bool bHit = GetWorld()->SweepSingleByChannel(
 		HitResult,
 		StartPoint,
 		EndPoint,
+		FQuat::Identity,  
 		ECC_Pawn,
+		FCollisionShape::MakeSphere(20.f),
 		TraceParams
 	);
 
-	OnWeaponBeamHit.Broadcast(StartPoint, EndPoint, BounceCount);
+
+	if (bHit)
+	{
+		OnWeaponBeamHit.Broadcast(StartPoint, HitResult.Location, BounceCount);
+
+	}
+	else
+	{
+		OnWeaponBeamHit.Broadcast(StartPoint, EndPoint, BounceCount);
+	}
 
 	
 	if (bHit)
@@ -199,19 +208,15 @@ void UTP_WeaponComponent::PerformBounceTrace(const FVector& StartLocation, const
 		float DistanceTraveled = (HitResult.Location - StartPoint).Size();
 		float RemainingBounceRange = RemainingRange - DistanceTraveled;
 
-		// Step 6: Get the hit location and the hit normal
-		FVector HitLocation = HitResult.Location + (HitResult.Normal * 1.0f); 
+		FVector HitLocation = HitResult.Location + (HitResult.Normal * 0.001f); 
 
 		FVector HitNormal = HitResult.Normal.GetSafeNormal(); 
 
-		// Step 7: Calculate the reflection vector for the bounce
 		FVector IncomingVector = (EndPoint - StartPoint).GetSafeNormal();  
 		FVector ReflectionVector = FMath::GetReflectionVector(IncomingVector, HitNormal); 
 
-		// Step 8: Ensure the remaining bounce range is valid
 		if (RemainingBounceRange > 0.0f)
 		{
-			// Perform the next bounce trace using the hit location and reflection vector
 			PerformBounceTrace(HitLocation, ReflectionVector.Rotation(), RemainingBounceRange, BounceCount - 1);
 		}
 	}
