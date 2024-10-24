@@ -25,20 +25,7 @@ void UTP_WeaponComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetWorld()->GetTimerManager().SetTimer(TraceTimerHandle, [this]()
-		{
-			APlayerController* PlayerController = Cast<APlayerController>(Character->GetController());
-			if (PlayerController)
-			{
-				
-
-				const FRotator SpawnRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
-				const FVector SpawnLocation = GetSocketLocation("Muzzle");
-				TraceWithBounce(GetSocketLocation("Muzzle"), SpawnRotation);
-				
-			}
-			
-		}, 0.01, true); // true to loop the timer
+	
 
 }
 
@@ -49,6 +36,8 @@ void UTP_WeaponComponent::Fire()
 	{
 		return;
 	}
+
+	StopAim();
 
 	// Get the PlayerController and PlayerState
 	APlayerController* PlayerController = Cast<APlayerController>(Character->GetController());
@@ -135,8 +124,35 @@ void UTP_WeaponComponent::AttachWeapon(AMechanicsCharacter* TargetCharacter)
 		if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerController->InputComponent))
 		{
 			// Fire
-			EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &UTP_WeaponComponent::Fire);
+			EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &UTP_WeaponComponent::Fire);
+			EnhancedInputComponent->BindAction(AimAction, ETriggerEvent::Started, this, &UTP_WeaponComponent::Aim);
 		}
+	}
+}
+
+void UTP_WeaponComponent::Aim()
+{
+	if (!GetWorld()->GetTimerManager().TimerExists(TraceTimerHandle))
+	{		
+		GetWorld()->GetTimerManager().SetTimer(TraceTimerHandle, [this]()
+		{
+			APlayerController* PlayerController = Cast<APlayerController>(Character->GetController());
+			if (PlayerController)
+			{
+				const FRotator SpawnRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
+				const FVector SpawnLocation = GetSocketLocation("Muzzle");
+				TraceWithBounce(GetSocketLocation("Muzzle"), SpawnRotation);
+			}
+
+		}, 0.01, true);
+	}
+}
+
+void UTP_WeaponComponent::StopAim()
+{
+	if(GetWorld()->GetTimerManager().TimerExists(TraceTimerHandle))
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TraceTimerHandle);
 	}
 }
 
@@ -153,6 +169,11 @@ void UTP_WeaponComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		{
 			Subsystem->RemoveMappingContext(FireMappingContext);
 		}
+	}
+
+	if (GetWorld()->GetTimerManager().TimerExists(TraceTimerHandle))
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TraceTimerHandle);
 	}
 }
 
