@@ -17,7 +17,7 @@
 UTP_WeaponComponent::UTP_WeaponComponent()
 {
 	// Default offset from the character location for projectiles to spawn
-	MuzzleOffset = FVector(100.0f, 0.0f, 10.0f);
+	MuzzleOffset = FVector(100.0f, 0.0f, 60.f);
 }
 
 
@@ -30,12 +30,15 @@ void UTP_WeaponComponent::BeginPlay()
 			APlayerController* PlayerController = Cast<APlayerController>(Character->GetController());
 			if (PlayerController)
 			{
+				
+
 				const FRotator SpawnRotation = PlayerController->PlayerCameraManager->GetCameraRotation();
-				const FVector SpawnLocation = PlayerController->PlayerCameraManager->GetCameraLocation() + SpawnRotation.RotateVector(MuzzleOffset);
+				const FVector SpawnLocation = GetSocketLocation("Muzzle");
 				TraceWithBounce(SpawnLocation, SpawnRotation);
+				
 			}
 			
-		}, 0.03, true); // true to loop the timer
+		}, 0.01, true); // true to loop the timer
 
 }
 
@@ -187,7 +190,7 @@ void UTP_WeaponComponent::PerformBounceTrace(const FVector& StartLocation, const
 		TraceParams
 	);
 
-	OnWeaponBeamHit.Broadcast(StartPoint, HitResult.Location, BounceCount);
+	OnWeaponBeamHit.Broadcast(StartPoint, EndPoint, BounceCount);
 
 	
 	if (bHit)

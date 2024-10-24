@@ -80,7 +80,7 @@ public:
 
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	float TotalRange = 10000.0f;
+	float TotalRange = 4000.f;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	int MaxBounces = 4; // Maximum number of bounces
 };
