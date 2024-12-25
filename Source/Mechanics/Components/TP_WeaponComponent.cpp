@@ -2,9 +2,9 @@
 
 
 #include "TP_WeaponComponent.h"
-#include "MechanicsCharacter.h"
-#include "MechanicsPlayerState.h"
-#include "MechanicsProjectile.h"
+#include "Mechanics/Player/MechanicsCharacter.h"
+#include "Mechanics/Player/MechanicsPlayerState.h"
+#include "Mechanics/Actor/MechanicsProjectile.h"
 #include "GameFramework/PlayerController.h"
 #include "Camera/PlayerCameraManager.h"
 #include "Kismet/GameplayStatics.h"

@@ -2,17 +2,17 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
-#include "TestBlueprintableInterface.generated.h"
+#include "PlayerInterface.generated.h"
 
 // This class does not need to be modified.
 UINTERFACE(Blueprintable)
-class UTestBlueprintableInterface : public UInterface
+class UPlayerInterface : public UInterface
 {
     GENERATED_BODY()
 };
 
 
-class MECHANICS_API ITestBlueprintableInterface
+class MECHANICS_API IPlayerInterface
 {
     GENERATED_BODY()
 

@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
-#include "Interfaces/TestBlueprintableInterface.h"
+#include "Mechanics/Interfaces/PlayerInterface.h"
 #include "MechanicsCharacter.generated.h"
 
 class UInputComponent;
@@ -18,7 +18,7 @@ struct FInputActionValue;
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config=Game)
-class AMechanicsCharacter : public ACharacter, public ITestBlueprintableInterface
+class AMechanicsCharacter : public ACharacter, public IPlayerInterface
 {
 	GENERATED_BODY()
 
